@@ -1,15 +1,15 @@
 pub struct LinkedList<'a, T> {
-    head: Option<&'a Node<'a, T>>,
+    head: Option<Node<'a, &'a T>>,
     len: usize,
 }
 
 struct Node<'a, T> {
-    value: T,
-    next_value: Option<Box<Node<'a, T>>>,
+    value: &'a T,
+    next_value: Option<Box<Node<'a, &'a T>>>,
 }
 
 impl<'a, T> Node<'a, T> {
-    fn new(value: T) -> Self {
+    fn new(value: &T) -> Self {
         Self {
             value,
             next_value: None,
@@ -27,7 +27,7 @@ impl<'a, T> LinkedList<'a, T> {
 
     pub fn push(&mut self, value: &'a T) {
         match self.head {
-            Some(&head) => self.insert(value),
+            Some(_) => self.insert(value),
             None => self.create_head(value),
         }
         self.len += 1;
@@ -35,7 +35,7 @@ impl<'a, T> LinkedList<'a, T> {
 
     fn insert(&mut self, value: &'a T) {
         let new_element = Node::new(value);
-        let new_element = Box::new(&new_element);
+        let new_element = Box::new(new_element);
 
         self.head.unwrap().next_value = Some(new_element);
         self.head = new_element;
@@ -43,7 +43,9 @@ impl<'a, T> LinkedList<'a, T> {
 
     fn create_head(&mut self, value: &'a T) {
         let head_node = Node::new(value);
-        self.head = Some(&head_node);
+        let head_node = Some(head_node);
+
+        self.head = head_node;
     }
 
     pub fn last(&self) -> &T {
